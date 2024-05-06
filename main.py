@@ -6,7 +6,7 @@ from google.oauth2.service_account import Credentials
 
 
 # Discord bot token
-TOKEN = 'T'
+TOKEN = 't'
 
 # ID of the server and channel you want to read messages from
 SERVER_ID = 1219687915798663349
@@ -86,9 +86,21 @@ async def on_ready():
                 character_name = nickname.split('|')[1].strip()
                 player_name = nickname.split('|')[2].strip()
 
+                if character_name not in levels_df.columns.values:
+                    num_of_characters = len(levels_df.index)
 
+                    levels_df.loc[num_of_characters] = [num_of_characters, character_name, player_name, 1]
+                else:
 
-                print(f'{character_name} : {player_name}')
+                    player_index = levels_df.index[levels_df.Character == character_name]
+                    
+                    games_played = levels_df.loc[player_index, 'Games-Played' ].astype(int)
+
+                    levels_df.loc[player_index, 'Games-Played' ] = games_played + 1
+                    
+                    sheet.update([levels_df.columns.values.tolist()] + levels_df.values.tolist())
+
+              
 
 
     f = open("ingested_messages.txt", "w")
