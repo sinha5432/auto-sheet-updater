@@ -86,7 +86,7 @@ async def on_ready():
                 character_name = nickname.split('|')[1].strip()
                 player_name = nickname.split('|')[2].strip()
 
-                if character_name not in levels_df.columns.values:
+                if character_name not in levels_df['Character'].to_list():
                     num_of_characters = len(levels_df.index)
 
                     levels_df.loc[num_of_characters] = [num_of_characters, character_name, player_name, 1]
@@ -99,6 +99,8 @@ async def on_ready():
                     levels_df.loc[player_index, 'Games-Played' ] = games_played + 1
                     
                     sheet.update([levels_df.columns.values.tolist()] + levels_df.values.tolist())
+                
+                print(levels_df)
 
               
 
