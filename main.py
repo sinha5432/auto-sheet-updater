@@ -1,11 +1,11 @@
 import discord
 # permission -integer: 68608
 # Discord bot token
-TOKEN = 'MTIzNjk3MzIzNjcxODE0MTUyMg.GQYctX.IftPkFEHXxQWM1HaW3QYdVd9-BBC5r4hJ-Ix14'
+TOKEN = 'TOKEN'
 
 # ID of the server and channel you want to read messages from
-SERVER_ID = 1219687915798663349
-CHANNEL_ID = 1219689307829440562
+SERVER_ID = 123
+CHANNEL_ID = 123
 
 # Message to display
 DISPLAY_MESSAGE = "Hello from the bot!"
