@@ -2,11 +2,11 @@ import discord
 import re
 
 # Discord bot token
-TOKEN = 'TOKEN'
+TOKEN = 'T'
 
 # ID of the server and channel you want to read messages from
-SERVER_ID = 'ID'
-CHANNEL_ID = 'ID'
+SERVER_ID = 1219687915798663349
+CHANNEL_ID = 1219689307829440562
 
 # Message to display
 DISPLAY_MESSAGE = "Hello from the bot!"
@@ -28,39 +28,53 @@ async def on_ready():
     
     channel = client.get_channel(CHANNEL_ID)
 
-    async for message in channel.history(limit=1):
+    async for message in channel.history(limit=5):
         messages.append(message)
 
     # Display another message after reading all the previous messages
     # await channel.send(DISPLAY_MESSAGE)
     
-    # Print all the previous messages
 
     guild = await client.fetch_guild(SERVER_ID)
 
+    f = open("ingested_messages.txt", "r")
 
+    ingested_msg = f.read().split(',')
+
+    f.close()
 
     for message in messages:
         summary_message = message.content
+        message_id = str(message.id)
 
-        # print(summary_message)
-
-        player_tags = re.findall("<(.*)>", summary_message)
         
-        for players in player_tags:
-            player_id = int(players[1:])
+        
+        if message_id not in ingested_msg:
+            print('not found')
+            ingested_msg.append(message_id)
 
-            user = await guild.fetch_member(player_id)
-            nickname = user.nick
+            open("ingested_messages.txt", )
+
+
+
+            player_tags = re.findall("<(.*)>", summary_message)
             
-            character_name = nickname.split('|')[1].strip()
-            player_name = nickname.split('|')[2].strip()
+            for players in player_tags:
+                player_id = int(players[1:])
+
+                user = await guild.fetch_member(player_id)
+                nickname = user.nick
+                
+                character_name = nickname.split('|')[1].strip()
+                player_name = nickname.split('|')[2].strip()
 
 
-            print(f'{character_name} : {player_name}')
+                print(f'{character_name} : {player_name}')
 
 
-
+    f = open("ingested_messages.txt", "w")
+    f.write(",".join(ingested_msg)[1:])
+    f.close()
     
     print('All messages are done, pls close the code')
     
