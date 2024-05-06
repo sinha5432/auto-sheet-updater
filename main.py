@@ -1,5 +1,9 @@
 import discord
 import re
+import pandas as pd
+import gspread
+from google.oauth2.service_account import Credentials
+
 
 # Discord bot token
 TOKEN = 'T'
@@ -18,7 +22,21 @@ intents.message_content = True # Enable message texts
 client = discord.Client(intents=intents)
 
 
+# Define the scope
+google_scope = [
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/drive'
+]
 
+
+creds = Credentials.from_service_account_file('credentials.json', scopes=google_scope)
+
+google_client = gspread.authorize(creds)
+sheet = google_client.open('Tales of Exandria: Character levels').sheet1
+
+data = sheet.get_all_records()
+levels_df = pd.DataFrame(data)
+print(levels_df)
 
 @client.event
 async def on_ready():
@@ -67,6 +85,7 @@ async def on_ready():
                 
                 character_name = nickname.split('|')[1].strip()
                 player_name = nickname.split('|')[2].strip()
+
 
 
                 print(f'{character_name} : {player_name}')
