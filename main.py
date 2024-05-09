@@ -9,13 +9,13 @@ from google.oauth2.service_account import Credentials
 
 
 # Discord bot token
-TOKEN = 't'
+TOKEN = 'T'
 
 # ID of the server and channel you want to read messages from
 SERVER_ID = 1219687915798663349
 CHANNEL_ID = 1219689307829440562
 
-MESSAGES_TO_FETCH = 1
+MESSAGES_TO_FETCH = 10
 SERVER_LEVEL_CAP = [4, 8]
 
 
@@ -106,7 +106,7 @@ async def on_ready():
                 user = await guild.fetch_member(player_id)
                 nickname = user.nick
                 
-                character_name = nickname.split('|')[1].strip()
+                character_name = re.findall(r"(?:\|+\s*)(\w+)(?:\s*\|+)+", nickname)[0].strip()
                 player_name = nickname.split('|')[-1].strip()
 
                 if character_name not in levels_df['Character'].to_list():
@@ -121,7 +121,7 @@ async def on_ready():
                     if total_games_played >= SERVER_LEVEL_CAP[1]:
                         relevant_games = SERVER_LEVEL_CAP[1]
                     else:
-                        relevant_games = total_games_played
+                        relevant_games = total_games_played.item()
 
 
                     current_lvl = calculate_lvl(relevant_games)
@@ -129,10 +129,11 @@ async def on_ready():
 
                     # converting all values to str coz due to some reason int wasn't getting updated
                     
-                    levels_df.loc[player_index, 'Total-Games-Played' ] = str(total_games_played)
-                    levels_df.loc[player_index, 'Games-Counted'] = str(relevant_games)
+                    levels_df.loc[player_index, 'Total-Games-Played' ] = total_games_played
 
-                    levels_df.loc[player_index, 'Current-Level' ] = str(current_lvl)
+                    levels_df.loc[player_index, 'Games-Counted'] = relevant_games
+
+                    levels_df.loc[player_index, 'Current-Level' ] = current_lvl
                     
 
                     sheet.update([levels_df.columns.values.tolist()] + levels_df.values.tolist())
