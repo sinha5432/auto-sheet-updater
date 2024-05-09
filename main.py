@@ -13,6 +13,9 @@ SERVER_ID = 1219687915798663349
 CHANNEL_ID = 1219689307829440562
 
 MESSAGES_TO_FETCH = 1
+SERVER_LEVEL_CAP = [4, 8]
+
+
 
 # Initialize the bot
 intents = discord.Intents.default()
@@ -36,29 +39,27 @@ sheet = google_client.open('Tales of Exandria: Character levels').sheet1
 data = sheet.get_all_records()
 levels_df = pd.DataFrame(data)
 
-def calculate_lvl(games_played: int) -> int:
+def calculate_lvl(relevant_games: int) -> int:
     '''
     Level to get to   Games to play    Total
-     2              2                2
-     3              3                5
-     4              5                10
-     5              5                15
-     6              10               25
+     2              2                0
+     3              3                3
+     4              5                8
+     5              5                13
+     6              10               23
     '''
 
-    print(games_played)
-    print(type(games_played))
 
-    if games_played >=23:
+    if relevant_games >=23:
         return 6
 
-    if games_played >= 13:
+    if relevant_games >= 13:
         return 5
 
-    if games_played >= 8:
+    if relevant_games >= 8:
         return 4
     
-    if games_played >= 3:
+    if relevant_games >= 3:
         return 3
     
     return 2
@@ -94,7 +95,6 @@ async def on_ready():
             print('NEW SUMMARY DETECTED, PARSING....')
             ingested_msg.append(message_id)
 
-
             player_tags = re.findall("<(.*)>", summary_message)
             
             for players in player_tags:
@@ -104,26 +104,41 @@ async def on_ready():
                 nickname = user.nick
                 
                 character_name = nickname.split('|')[1].strip()
-                player_name = nickname.split('|')[2].strip()
+                player_name = nickname.split('|')[-1].strip()
 
                 if character_name not in levels_df['Character'].to_list():
                     num_of_characters = len(levels_df.index)
-                    levels_df.loc[num_of_characters] = [num_of_characters, character_name, player_name, 1]
+                    levels_df.loc[num_of_characters] = [num_of_characters, character_name, player_name, 1, 1, 2]
                 else:
 
                     player_index = levels_df.index[levels_df.Character == character_name]
                     
-                    games_played = levels_df.loc[player_index, 'Total-Games-Played' ].astype(int).iloc[0]
+                    total_games_played = levels_df.loc[player_index, 'Total-Games-Played' ].astype(int).iloc[0] + 1
 
-                    current_lvl = calculate_lvl(games_played)
+                    if total_games_played >= SERVER_LEVEL_CAP[1]:
+                        relevant_games = SERVER_LEVEL_CAP[1]
+                    else:
+                        relevant_games = total_games_played
 
-                    levels_df.loc[player_index, 'Total-Games-Played' ] = games_played + 1
 
-                    levels_df.loc[player_index, 'Current-Level' ] = current_lvl
+                    current_lvl = calculate_lvl(relevant_games)
+
+
+                    print(f'TOTAL GAMES PLAYED: {total_games_played} GAMES COUNTED: {relevant_games} CURRENT LEVEL: {current_lvl}')
+
+
+                    # converting all values to str coz due to some reason int wasnt getting updated
+
+                    levels_df.loc[player_index, 'Total-Games-Played' ] = str(total_games_played)
+                    levels_df.loc[player_index, 'Games-Counted'] = str(relevant_games)
+
+                    levels_df.loc[player_index, 'Current-Level' ] = str(current_lvl)
                     
+                    # print([levels_df.columns.values.tolist()] + levels_df.values.tolist())
+
+
                     sheet.update([levels_df.columns.values.tolist()] + levels_df.values.tolist())
                 
-                print(levels_df)
 
               
 
