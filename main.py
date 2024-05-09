@@ -1,3 +1,6 @@
+# Code is messed up currently
+# Need help in editing to readable format XD
+
 import discord
 import re
 import pandas as pd
@@ -124,23 +127,18 @@ async def on_ready():
                     current_lvl = calculate_lvl(relevant_games)
 
 
-                    print(f'TOTAL GAMES PLAYED: {total_games_played} GAMES COUNTED: {relevant_games} CURRENT LEVEL: {current_lvl}')
-
-
-                    # converting all values to str coz due to some reason int wasnt getting updated
-
+                    # converting all values to str coz due to some reason int wasn't getting updated
+                    
                     levels_df.loc[player_index, 'Total-Games-Played' ] = str(total_games_played)
                     levels_df.loc[player_index, 'Games-Counted'] = str(relevant_games)
 
                     levels_df.loc[player_index, 'Current-Level' ] = str(current_lvl)
                     
-                    # print([levels_df.columns.values.tolist()] + levels_df.values.tolist())
-
 
                     sheet.update([levels_df.columns.values.tolist()] + levels_df.values.tolist())
                 
 
-              
+    print(levels_df)
 
 
     f = open("ingested_messages.txt", "w")
